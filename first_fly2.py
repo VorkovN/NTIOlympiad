@@ -11,7 +11,7 @@ import time
 
 cur_col = ""
 file = open("results.txt", "w")
-arr = [[1.0, 1.0], [4.0, 1.0], [4.0, 5.0], [1.0, 5.0], [1.0, 1.0]]
+arr = [[2.0, 5.0]]
 colours = ["", "", "", ""]
 
 bridge = CvBridge()
@@ -21,7 +21,7 @@ get_telemetry = rospy.ServiceProxy('get_telemetry', srv.GetTelemetry)
 navigate = rospy.ServiceProxy('navigate', srv.Navigate)
 land = rospy.ServiceProxy('land', Trigger)
 
-def navigate_wait(x=0.0, y=0.0, z=1.4, yaw=float('nan'), speed=0.4, frame_id='map', auto_arm=False, tolerance=0.3):
+def navigate_wait(x=0.0, y=0.0, z=1.4, yaw=float('nan'), speed=0.2, frame_id='map', auto_arm=False, tolerance=0.2):
     navigate(x=x, y=y, z=z, yaw=yaw, speed=speed, frame_id=frame_id, auto_arm=auto_arm)
 
     while not rospy.is_shutdown():
@@ -36,7 +36,7 @@ def land_wait():
         rospy.sleep(0.1)
 
 def take_off():
-	navigate_wait(x=0.0, y=0.0, z=1.4, yaw=0.0, speed=0.4, frame_id='map',  auto_arm=True, tolerance=0.1)
+	navigate_wait(x=0.0, y=0.0, z=1.4, yaw=0.0, speed=0.2, frame_id='map',  auto_arm=True, tolerance=0.1)
 	rospy.sleep(2)	
 
 def nextMark(xc, yc):
@@ -44,7 +44,7 @@ def nextMark(xc, yc):
 	rospy.sleep(1)
 
 def home():
-	navigate_wait(x=0.0, y=0.0, z=1.4, yaw=0.0, speed=0.4, frame_id='map',  auto_arm=True, tolerance=0.1)
+	navigate_wait(x=0.0, y=0.0, z=1.4, yaw=0.0, speed=0.2, frame_id='map',  auto_arm=True, tolerance=0.1)
 	rospy.sleep(1)
 
 def image_callback(data):
@@ -74,6 +74,13 @@ def image_callback(data):
 	res_yellow = cv2.bitwise_and(hsv, hsv, mask=mask_yellow)
 	res_yellow = cv2.cvtColor(res_yellow, cv2.COLOR_BGR2GRAY)
 	ret, res_yellow = cv2.threshold(res_yellow, 127, 255, 0)
+
+	lower_blue = np.array([115, 100, 0])
+        upper_blue = np.array(125, 255, 255])
+	mask_blue = cv2.inRange(hsv, lower_blue, upper_blue)
+	res_blue = cv2.bitwise_and(hsv, hsv, mask=mask_blue)
+	res_blue = cv2.cvtColor(res_blue, cv2.COLOR_BGR2GRAY)
+	ret, res_blue = cv2.threshold(res_blue, 127, 255, 0)
 
 	lower_red1 = np.array([0, 100, 0])
         upper_red1 = np.array([5, 255, 255])
