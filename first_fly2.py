@@ -11,8 +11,12 @@ import time
 
 cur_col = ""
 file = open("results.txt", "w")
-arr = [[2.0, 5.0]]
+arr = [[2.0, 2.0], [2.0, 5.0]]
 colours = ["", "", "", ""]
+blue = 0
+red = 0
+green = 0
+yellow = 0
 
 bridge = CvBridge()
 
@@ -50,6 +54,10 @@ def home():
 def image_callback(data):
 
 	global cur_col
+	global blue
+	global red
+	global green
+	global yellow
 
 	cv2.startWindowThread()
 	cv_image = bridge.imgmsg_to_cv2(data, 'bgr8')
@@ -76,7 +84,7 @@ def image_callback(data):
 	ret, res_yellow = cv2.threshold(res_yellow, 127, 255, 0)
 
 	lower_blue = np.array([115, 100, 0])
-        upper_blue = np.array(125, 255, 255])
+        upper_blue = np.array([125, 255, 255])
 	mask_blue = cv2.inRange(hsv, lower_blue, upper_blue)
 	res_blue = cv2.bitwise_and(hsv, hsv, mask=mask_blue)
 	res_blue = cv2.cvtColor(res_blue, cv2.COLOR_BGR2GRAY)
@@ -96,27 +104,39 @@ def image_callback(data):
 	ret, res_red = cv2.threshold(res_red, 127, 255, 0)
 
 	_, green_contours, _ = cv2.findContours(res_green, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-	if len(green_contours)>0:
-		file.write("green = " + str(len(green_contours)) + "\n")
+	if len(green_contours)>green:
+		green = len(green_contours)
+		
 
 	_, yellow_contours, _ = cv2.findContours(res_yellow, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-	if len(yellow_contours)>0:	
-		file.write("yellow = " + str(len(yellow_contours)) + "\n")
+	if len(yellow_contours)>yellow:
+		yellow = len(yellow_contours)
+		
 
 	_, red_contours, _ = cv2.findContours(res_red, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-	if len(red_contours)>0:
-		file.write("red = " + str(len(red_contours)) + "\n")
+	if len(red_contours)>red:
+		red = len(red_contours)
+
+
+	_, blue_contours, _ = cv2.findContours(res_blue, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+	if len(blue_contours)>blue:
+		blue = len(blue_contours)
 
 	
 def main():
 	image_sub = rospy.Subscriber('main_camera/image_raw', Image, image_callback, queue_size=1)
 
 	take_off()
-	for i in range(0, 4):
+	for i in range(0, len(arr)-1):
 		nextMark(arr[i][0], arr[i][1])
 		colours[i] = cur_col
 	home()
 	land_wait()
+	file.write("green = " + str(green) + "\n")
+	file.write("yellow = " + str(yellow) + "\n")
+	file.write("red = " + str(red) + "\n")
+	file.write("blue = " + str(blue) + "\n")
+
 	cv2.destroyAllWindows()
 	file.close()
 
