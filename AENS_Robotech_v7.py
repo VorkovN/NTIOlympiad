@@ -18,6 +18,10 @@ red = 0
 green = 0
 yellow = 0
 
+wx = 0
+wy = 0
+wz = 0
+
 bridge = CvBridge()
 
 rospy.init_node('task2')
@@ -25,12 +29,25 @@ get_telemetry = rospy.ServiceProxy('get_telemetry', srv.GetTelemetry)
 navigate = rospy.ServiceProxy('navigate', srv.Navigate)
 land = rospy.ServiceProxy('land', Trigger)
 
+
 def navigate_wait(x=0.0, y=0.0, z=1.6, yaw=float('nan'), speed=0.2, frame_id='body', auto_arm=False, tolerance=0.2):
-    navigate(x=x, y=y, z=z, yaw=yaw, speed=speed, frame_id=frame_id, auto_arm=auto_arm)
+    global wx, wy, wz
+
+    move_x = x - wx
+    move_y = y - wy
+    move_z = z - wz
+
+    navigate(x=move_x, y=move_y, z=move_z, yaw=yaw,
+	         speed=speed, frame_id=frame_id, auto_arm=auto_arm)
+
+    
 
     while not rospy.is_shutdown():
         telem = get_telemetry(frame_id='navigate_target')
         if math.sqrt(telem.x ** 2 + telem.y ** 2 + telem.z ** 2) < tolerance:
+            wx = x - telem.x
+            wy = y - telem.y
+            wz = z - telem.z
             break
         rospy.sleep(0.1)
 

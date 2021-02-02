@@ -1,0 +1,4 @@
+green = 2
+yellow = 2
+red = 1
+blue = 1
