@@ -102,7 +102,7 @@ def scan_cargo(img):
     blue_count = 0
     for cnt in blue_contours:
         area = cv2.contourArea(cnt) # вычисление площади
-        if area > AREA_TOLERANCE and area < 300:
+        if area > AREA_TOLERANCE:
             blue_count += 1
         else:
             continue
