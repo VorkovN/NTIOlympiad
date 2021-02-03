@@ -34,7 +34,7 @@ DEBUG_COLORS = {
     'blue': [255, 0, 0]
 }
 
-KMEANS_N_COLORS = 6
+KMEANS_N_COLORS = 5
 COLOR_TOLERANCE = 60
 DEBUG = True
 
@@ -53,7 +53,7 @@ def detect_cargo(img):
     # Поиск контуров
     gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     _, thresh = cv2.threshold(gray_img, 100, 255, cv2.THRESH_BINARY)
-    _, contours, _ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    _, contours, _ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
     if DEBUG:
         cv2.imshow("Thresh", thresh)
