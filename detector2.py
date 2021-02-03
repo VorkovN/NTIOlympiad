@@ -7,7 +7,7 @@ import numpy as np
 
 
 if __name__ == '__main__':
-    img = cv2.imread('3.jpg')
+    img = cv2.imread('1.jpg')
     cv2.namedWindow("original")
     cv2.imshow("original", img)
 
