@@ -77,7 +77,7 @@ def get_cur_position():
     telem = get_telemetry()
     return (telem.x, telem.y, telem.z)
 
-def logging(s, inconsole=False):
+def logging(s, inconsole=True):
     log_file.write(s + "\n")
     if inconsole:
         print s
@@ -108,11 +108,11 @@ def scan_cargo(img):
     hsv = cv2.cvtColor(blur, cv2.COLOR_BGR2HSV)
 
     lower_green = np.array([45, 30, 70])
-    upper_green = np.array([85, 255, 255])
+    upper_green = np.array([80, 255, 255])
     mask_green = cv2.inRange(hsv, lower_green, upper_green)
     res_green = cv2.bitwise_and(hsv, hsv, mask=mask_green)
     res_green = cv2.cvtColor(res_green, cv2.COLOR_BGR2GRAY)
-    ret, res_green = cv2.threshold(res_green, 90, 255, 0)
+    ret, res_green = cv2.threshold(res_green, 100, 255, 0)
     _, green_contours, _ = cv2.findContours(res_green, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     green_count = 0
@@ -174,11 +174,11 @@ def scan_cargo(img):
     if blue_count > cur_cargo_amount['blue']:
         cur_cargo_amount['blue'] = blue_count
 
-    lower_red1 = np.array([0, 40, 100])
-    upper_red1 = np.array([12, 250, 230])
+    lower_red1 = np.array([0, 20, 90])
+    upper_red1 = np.array([15, 250, 240])
 
-    lower_red2 = np.array([168, 40, 100])
-    upper_red2 = np.array([179, 250, 230])
+    lower_red2 = np.array([165, 20, 90])
+    upper_red2 = np.array([179, 250, 240])
 
     mask_red1 = cv2.inRange(hsv, lower_red1, upper_red1)
     mask_red2 = cv2.inRange(hsv, lower_red2, upper_red2)
@@ -186,7 +186,7 @@ def scan_cargo(img):
     res_red2 = cv2.bitwise_and(hsv, hsv, mask=mask_red2)
     res_red = cv2.bitwise_or(res_red1, res_red2)
     res_red = cv2.cvtColor(res_red, cv2.COLOR_BGR2GRAY)
-    ret, res_red = cv2.threshold(res_red, 100, 255, 0)
+    ret, res_red = cv2.threshold(res_red, 90, 255, 0)
     _, red_contours, _ = cv2.findContours(res_red, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     red_count = 0
@@ -279,7 +279,7 @@ def image_callback(data):
         height = cv_image.shape[0]
         min_height, max_height = int(height//2 - height//(INVENTARIZATION_CROP_IMAGE*2)),\
                                  int(height//2 + height//(INVENTARIZATION_CROP_IMAGE*2))
-        cv_image = cv_image[min_height:max_height, 32:]
+        cv_image = cv_image[min_height:max_height, 32:208]
         cnt_img = scan_cargo(cv_image)
         cv2.imwrite(DIR_PATH+str(time.time())+"contours.jpg", cnt_img)
 
@@ -321,7 +321,7 @@ def main():
         for k,v in cur_cargo_amount.iteritems():
             cargo_amount[k] += v
             cur_cargo_amount[k] = 0
-        print_inventarization(False)
+        print_inventarization(True)
         
     time.sleep(1)
     print_inventarization() # Печатаем отчет об инвентаризации
@@ -335,7 +335,7 @@ def main():
         DETECTED_DRONPOINT = -1
         nextMark(point[0], point[1])
         DRONPOINTS_DETECTION_ENABLE = True
-        time.sleep(1)
+        time.sleep(2)
         DRONPOINTS_DETECTION_ENABLE = False
 
         if DETECTED_DRONPOINT != -1:  # Нашли дронпоинт
