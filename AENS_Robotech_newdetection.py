@@ -227,7 +227,7 @@ def dronpoints_detection(img):
     cv2.drawContours(img,contours,0,(0,255,0),1)
     
     kostyl_number = 0
-    kostyl_size = cv2.contourArea(contours[0])/(cv2.arcLength (contours[0], True )**2)
+    kostyl_size = cv2.contourArea(contours[0])/(cv2.arcLength (contours[0], True )**2) #магическое соотношение квадрата периметра к площади, которое определяет цифру
     if (kostyl_size > 0.040):
         kostyl_number = 0
     elif(kostyl_size > 0.019):
